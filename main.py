@@ -1,42 +1,49 @@
-import bs4
-import selenium
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 
-# youtube_channel = input("Please paste the link of the youtube channel's homepage: ")
+channel_url = input("Please paste the link of the youtube channel's homepage: ")
 
-def get_video(channel_url):
+# Set up Selenium with Chrome
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
-    # Send GET request to channel URL
-    response = requests.get(channel_url)
+# Replace with the URL of the YouTube channel's homepage
 
-    # Confirm request was successful
-    if response.status_code != 200:
-        print("Failed to retreive the page")
-        return None
+# Open the channel homepage in the browser
+driver.get(channel_url)
 
-    # Make soup with HTML parser
-    soup = BeautifulSoup(response.text, "html.parser")
+# Wait for the page to load completely (adjust the wait time as needed)
+time.sleep(5)
 
-    # Look for youtube specific layout for videos
-    # video = soup.find(id = "contents", class_ = "style-scope ytd-section-list-renderer")
-    video = soup.find("body")
-    # link = video.get("href")
+# Find the videos tab on the channel's homepage
 
-    print(video)
-    # print(link)
+video_tab = driver.find_element(By.LINK_TEXT, "Videos")
+video_tab.click()
 
-    # if video:
-    #     # Find video URL
-    #     link = video.find("a", {"href": True})
-    #     if link:
-    #         video_url = "https://www.youtube.com" + link["href"]
-    #         return video_url
-    # return "No video found"
+time.sleep(3)
 
-recent_video = get_video("https://www.youtube.com/@DailyValorantqq")
+first_video = driver.find_element(By.ID, "video-title-link")
+link = first_video.get_attribute("href")
+print(link)
 
-# if recent_video:
-#     print(f"The most recent video from [Channel Name] is: {recent_video}")
-# else:
-#     print("Could not find the most recent video.")
+video_title = driver.find_element(By.ID, "video-title")
+print(video_title.text)
+
+time.sleep(3)
+
+# Find the first video on the homepage (it should be within <ytd-video-renderer>)
+# try:
+#     # Locate the first video element
+#     video_tab = driver.find_element(By.LINK_TEXT, "Videos")
+#
+#     # Get the link to the most recent video
+#     video_url = video_tab.get_attribute("href")
+#     print(f"Most recent video URL: {video_url}")
+# except Exception as e:
+#     print(f"Error: {e}")
+
+# Close the driver
+driver.quit()
+
